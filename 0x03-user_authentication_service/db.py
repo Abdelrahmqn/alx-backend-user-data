@@ -48,9 +48,11 @@ class DB:
             User: The created User object.
         """
         try:
-            usr = self._session.query(User).filter(**kwargs)
+            usr = self._session.query(User).filter(**kwargs).first()
             if usr is None:
                 raise NoResultFound
             return usr
         except InvalidRequestError as e:
-            raise InvalidRequestError("invalid") from e
+            raise e
+        except NoResultFound as e:
+            raise e
