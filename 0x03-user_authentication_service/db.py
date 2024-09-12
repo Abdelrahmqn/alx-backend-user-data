@@ -50,7 +50,17 @@ class DB:
         for element in kwargs:
             if not hasattr(User, element):
                 raise InvalidRequestError
-            usr = self.__session.query(User).filter_by(**kwargs).first()
+            usr = self._session.query(User).filter_by(**kwargs).first()
             if not usr:
                 raise NoResultFound
             return usr
+
+    def update_user(self, user_id: int, **kwargs) -> None:
+        """find user and update key with value
+        """
+        find_user = DB.find_user_by(id=user_id)
+        for key, value in kwargs.item():
+            if not hasattr(find_user, key):
+                raise ValueError(f"{key} not valid")
+            setattr(find_user, key, value)
+        self._session.commit()
