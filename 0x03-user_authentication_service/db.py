@@ -40,19 +40,17 @@ class DB:
         self._session.commit()
         return user
 
-    def find_user_by(self, **kwargs: str) -> User:
+    def find_user_by(self, **kwargs) -> User:
         """finding users in database
         Args:
             kwargs (str): The user.
         Returns:
             User: The created User object.
         """
-        try:
-            usr = self._session.query(User).filter(**kwargs).first()
-            if usr is None:
+        for element in kwargs:
+            if not hasattr(User, element):
+                raise InvalidRequestError
+            usr = self.__session.query(User).filter_by(**kwargs).first()
+            if not usr:
                 raise NoResultFound
             return usr
-        except InvalidRequestError as e:
-            raise e
-        except NoResultFound as e:
-            raise e
