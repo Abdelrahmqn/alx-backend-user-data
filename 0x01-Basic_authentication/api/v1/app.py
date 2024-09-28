@@ -11,14 +11,12 @@ app = Flask(__name__)
 app.register_blueprint(app_views)
 CORS(app, resources={r"/api/v1/*": {"origins": "*"}})
 
-# Initialize auth based on environment variable
-auth_type = getenv('AUTH_TYPE')
 auth = None
-if auth_type:
-    if auth_type == 'auth':
-        from api.v1.auth.auth import Auth
-        auth = Auth()
-elif auth_type == 'basic_auth':
+AUTH_TYPE = getenv("AUTH_TYPE")
+if AUTH_TYPE == "auth":
+    from api.v1.auth.auth import Auth
+    auth = Auth()
+elif AUTH_TYPE == "basic_auth":
     from api.v1.auth.basic_auth import BasicAuth
     auth = BasicAuth()
 

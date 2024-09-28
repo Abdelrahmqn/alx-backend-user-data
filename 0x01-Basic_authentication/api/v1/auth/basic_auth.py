@@ -6,7 +6,7 @@ import base64
 import binascii
 from typing import Tuple, TypeVar
 from .auth import Auth
-from models.user import User
+from models.user import User as User
 
 
 class BasicAuth(Auth):
@@ -44,3 +44,41 @@ class BasicAuth(Auth):
                 ).decode('utf-8')
         except (binascii.Error, ValueError):
             return None
+
+    def user_object_from_credentials(
+                                    self,
+                                    user_email: str, user_pwd:
+                                    str) -> TypeVar('User'):
+        """user object from credentials"""
+        if user_email is None or not isinstance(user_email, str):
+            return None
+        if user_pwd is None or not isinstance(user_pwd, str):
+            return None
+        try:
+            users = User.search({"email": user_email})
+            if not users or users == []:
+                return None
+            for user in users:
+                if user.is_valid_password(user_pwd):
+                    return user
+                return None
+        except Exception:
+            return None
+
+
+def current_user(self, request=None) -> TypeVar('User'):
+    """
+    Returns a User instance based on a received header req
+    """
+    Auth_header = self.authorization_header(request)
+    if Auth_header is not None:
+        token = self.extract_base64_authorization_header(Auth_header)
+        if token is not None:
+            decoded = self.decode_base64_authorization_header(token)
+            if decoded is not None:
+                email, password = self.extract_user_credentials(decoded)
+                if email is not None:
+                    return self.user_object_from_credentials(
+                                                            email,
+                                                            password)
+    return
